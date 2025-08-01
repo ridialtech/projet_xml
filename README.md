@@ -38,3 +38,4 @@ python main.py serve
 ```
 
 Ceci démarre le serveur et ouvre automatiquement la page `http://localhost:8000` dans votre navigateur.
+

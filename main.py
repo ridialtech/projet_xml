@@ -27,6 +27,7 @@ def load_library() -> ET.ElementTree:
 
 def save_library(tree: ET.ElementTree) -> None:
     """Enregistre l'arbre XML dans le fichier de bibliothèque."""
+    
     tree.write(LIBRARY_FILE, encoding="utf-8", xml_declaration=True)
 
 
@@ -51,6 +52,7 @@ def add_book(args) -> None:
 
 def list_books(_args) -> None:
     """Affiche la liste de tous les livres."""
+
     tree = load_library()
     for book in tree.getroot().findall("books/book"):
         print(f"[{book.get('id')}] {book.findtext('title')} by {book.findtext('author')}")
@@ -58,6 +60,7 @@ def list_books(_args) -> None:
 
 def search_books(args) -> None:
     """Recherche des livres selon différents critères."""
+
     tree = load_library()
     for book in tree.getroot().findall("books/book"):
         if args.author and args.author.lower() not in book.findtext("author").lower():
@@ -71,6 +74,7 @@ def search_books(args) -> None:
 
 def add_user(args) -> None:
     """Ajoute un utilisateur à la bibliothèque."""
+
     tree = load_library()
     users = tree.getroot().find("users")
     ids = [int(u.get("id")) for u in users.findall("user")]
@@ -83,6 +87,7 @@ def add_user(args) -> None:
 
 def loan_book(args) -> None:
     """Enregistre le prêt d'un livre à un utilisateur."""
+
     tree = load_library()
     root = tree.getroot()
     # verify book and user exist
@@ -109,6 +114,7 @@ def loan_book(args) -> None:
 
 def return_book(args) -> None:
     """Note le retour d'un livre emprunté."""
+
     tree = load_library()
     loans = tree.getroot().find("loans")
     loan = loans.find(f"loan[@book_id='{args.book_id}'][@returned='false']")
@@ -144,6 +150,7 @@ def serve(_args) -> None:
 def build_parser() -> argparse.ArgumentParser:
     """Construit l'analyseur de ligne de commande."""
     parser = argparse.ArgumentParser(description="Gestionnaire de bibliothèque XML")
+
     sub = parser.add_subparsers(dest="command")
 
     badd = sub.add_parser("add-book", help="Add a new book")
@@ -192,11 +199,13 @@ def build_parser() -> argparse.ArgumentParser:
     srv = sub.add_parser("serve", help="Lance l'interface web")
     srv.set_defaults(func=serve)
 
+
     return parser
 
 
 def main(argv=None) -> None:
     """Point d'entrée du programme."""
+
     parser = build_parser()
     args = parser.parse_args(argv)
     if hasattr(args, "func"):
