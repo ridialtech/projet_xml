@@ -25,6 +25,7 @@ python main.py --help
 - `loan-book <id_livre> <id_utilisateur> [date_sortie] [date_retour_prevue]` : enregistre un emprunt
 - `return-book <id_livre> [date_retour]` : marque un livre comme rendu
 - `extend-loan <id_livre> <nouvelle_date>` : prolonge un prêt
+
 - `list-loans` : affiche les emprunts
 
 ## Exemple d'utilisation
@@ -44,3 +45,4 @@ python main.py serve
 ```
 
 Ceci démarre le serveur et ouvre automatiquement la page `http://localhost:8000` dans votre navigateur.
+
