@@ -250,7 +250,6 @@ def build_parser() -> argparse.ArgumentParser:
     bdel.add_argument("book_id")
     bdel.set_defaults(func=delete_book)
 
-
     bsearch = sub.add_parser("search-books", help="Search books")
     bsearch.add_argument("--author")
     bsearch.add_argument("--genre")

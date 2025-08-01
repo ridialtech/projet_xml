@@ -31,7 +31,15 @@ def page(title: str, body: str) -> str:
     <nav>
         <a href='/'>Accueil</a>
         <a href='/books'>Livres</a>
-        <a href='/add-book'>Ajouter</a>
+        <a href='/add-book'>Ajouter livre</a>
+        <a href='/users'>Utilisateurs</a>
+        <a href='/add-user'>Ajouter utilisateur</a>
+        <a href='/loans'>Prêts</a>
+        <a href='/loan-book'>Emprunter</a>
+        <a href='/return-book'>Retour</a>
+        <a href='/extend-loan'>Prolonger</a>
+        <a href='/search-books'>Recherche</a>
+
     </nav>
 </header>
 <main>
@@ -268,7 +276,6 @@ def search_books_html(params) -> str:
     else:
         table = "<p>Aucun résultat.</p>"
     return table
-
 
 
 class LibraryHandler(BaseHTTPRequestHandler):
