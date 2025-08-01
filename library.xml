@@ -1,0 +1,38 @@
+<library>
+    <books>
+        <book id="1">
+            <title>Le Mandat</title>
+            <author>Ousmane Semb\u00e8ne</author>
+            <genre>Roman</genre>
+            <year>1966</year>
+        </book>
+        <book id="2">
+            <title>Une si longue lettre</title>
+            <author>Mariama B\u00e2</author>
+            <genre>Roman</genre>
+            <year>1979</year>
+        </book>
+        <book id="3">
+            <title>L'Aventure ambigu\u00eb</title>
+            <author>Cheikh Hamidou Kane</author>
+            <genre>Roman</genre>
+            <year>1961</year>
+        </book>
+        <book id="4">
+            <title>Les Mis\u00e9rables</title>
+            <author>Victor Hugo</author>
+            <genre>Roman</genre>
+            <year>1862</year>
+        </book>
+        <book id="5">
+            <title>Vingt mille lieues sous les mers</title>
+            <author>Jules Verne</author>
+            <genre>Aventure</genre>
+            <year>1870</year>
+        </book>
+    </books>
+    <users>
+    </users>
+    <loans>
+    </loans>
+</library>
