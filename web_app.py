@@ -39,6 +39,7 @@ def page(title: str, body: str) -> str:
         <a href='/return-book'>Retour</a>
         <a href='/extend-loan'>Prolonger</a>
         <a href='/search-books'>Recherche</a>
+
     </nav>
 </header>
 <main>
@@ -473,6 +474,7 @@ class LibraryHandler(BaseHTTPRequestHandler):
             self.send_header("Content-Type", "text/html; charset=utf-8")
             self.end_headers()
             self.wfile.write(html_page.encode("utf-8"))
+
         else:
             self.send_error(404)
 
