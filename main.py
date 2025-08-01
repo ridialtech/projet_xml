@@ -27,13 +27,12 @@ def load_library() -> ET.ElementTree:
 
 def save_library(tree: ET.ElementTree) -> None:
     """Enregistre l'arbre XML dans le fichier de bibliothèque."""
-
+    
     tree.write(LIBRARY_FILE, encoding="utf-8", xml_declaration=True)
 
 
 def add_book(args) -> None:
     """Ajoute un nouvel ouvrage à la bibliothèque."""
-
     tree = load_library()
     root = tree.getroot()
     books = root.find("books")
@@ -139,6 +138,15 @@ def list_loans(_args) -> None:
         )
 
 
+def serve(_args) -> None:
+    """Lance le serveur web et ouvre la page dans un navigateur."""
+    import webbrowser
+    from web_app import run
+
+    webbrowser.open("http://localhost:8000")
+    run()
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Construit l'analyseur de ligne de commande."""
     parser = argparse.ArgumentParser(description="Gestionnaire de bibliothèque XML")
@@ -187,6 +195,10 @@ def build_parser() -> argparse.ArgumentParser:
 
     llist = sub.add_parser("list-loans", help="List loans")
     llist.set_defaults(func=list_loans)
+
+    srv = sub.add_parser("serve", help="Lance l'interface web")
+    srv.set_defaults(func=serve)
+
 
     return parser
 

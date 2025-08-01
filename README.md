@@ -28,3 +28,14 @@ python main.py list-books
 ```
 
 Le fichier `library.xml` est mis à jour à chaque opération afin de conserver l'historique des ouvrages et des prêts.
+
+## Interface web de test
+
+Une interface web peut être lancée afin de consulter et enrichir la bibliothèque. Utilisez :
+
+```bash
+python main.py serve
+```
+
+Ceci démarre le serveur et ouvre automatiquement la page `http://localhost:8000` dans votre navigateur.
+
