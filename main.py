@@ -1,3 +1,9 @@
+"""Gestionnaire de bibliothèque simple basé sur un fichier XML.
+
+Ce module permet d'ajouter des livres, des utilisateurs et de suivre les prêts
+grâce à une interface en ligne de commande.
+"""
+
 import argparse
 import datetime
 import xml.etree.ElementTree as ET
@@ -8,7 +14,7 @@ LIBRARY_FILE = Path("library.xml")
 
 
 def load_library() -> ET.ElementTree:
-    """Load the XML library file, creating it if necessary."""
+    """Charge le fichier XML de la bibliothèque en le créant si besoin."""
     if not LIBRARY_FILE.exists():
         root = ET.Element("library")
         ET.SubElement(root, "books")
@@ -20,11 +26,14 @@ def load_library() -> ET.ElementTree:
 
 
 def save_library(tree: ET.ElementTree) -> None:
-    """Save the XML tree back to the library file."""
+    """Enregistre l'arbre XML dans le fichier de bibliothèque."""
+
     tree.write(LIBRARY_FILE, encoding="utf-8", xml_declaration=True)
 
 
 def add_book(args) -> None:
+    """Ajoute un nouvel ouvrage à la bibliothèque."""
+
     tree = load_library()
     root = tree.getroot()
     books = root.find("books")
@@ -43,12 +52,16 @@ def add_book(args) -> None:
 
 
 def list_books(_args) -> None:
+    """Affiche la liste de tous les livres."""
+
     tree = load_library()
     for book in tree.getroot().findall("books/book"):
         print(f"[{book.get('id')}] {book.findtext('title')} by {book.findtext('author')}")
 
 
 def search_books(args) -> None:
+    """Recherche des livres selon différents critères."""
+
     tree = load_library()
     for book in tree.getroot().findall("books/book"):
         if args.author and args.author.lower() not in book.findtext("author").lower():
@@ -61,6 +74,8 @@ def search_books(args) -> None:
 
 
 def add_user(args) -> None:
+    """Ajoute un utilisateur à la bibliothèque."""
+
     tree = load_library()
     users = tree.getroot().find("users")
     ids = [int(u.get("id")) for u in users.findall("user")]
@@ -72,6 +87,8 @@ def add_user(args) -> None:
 
 
 def loan_book(args) -> None:
+    """Enregistre le prêt d'un livre à un utilisateur."""
+
     tree = load_library()
     root = tree.getroot()
     # verify book and user exist
@@ -97,6 +114,8 @@ def loan_book(args) -> None:
 
 
 def return_book(args) -> None:
+    """Note le retour d'un livre emprunté."""
+
     tree = load_library()
     loans = tree.getroot().find("loans")
     loan = loans.find(f"loan[@book_id='{args.book_id}'][@returned='false']")
@@ -110,6 +129,7 @@ def return_book(args) -> None:
 
 
 def list_loans(_args) -> None:
+    """Affiche l'ensemble des prêts enregistrés."""
     tree = load_library()
     for loan in tree.getroot().findall("loans/loan"):
         status = "returned" if loan.get("returned") == "true" else "on loan"
@@ -120,7 +140,9 @@ def list_loans(_args) -> None:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Simple XML library manager")
+    """Construit l'analyseur de ligne de commande."""
+    parser = argparse.ArgumentParser(description="Gestionnaire de bibliothèque XML")
+
     sub = parser.add_subparsers(dest="command")
 
     badd = sub.add_parser("add-book", help="Add a new book")
@@ -170,6 +192,8 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv=None) -> None:
+    """Point d'entrée du programme."""
+
     parser = build_parser()
     args = parser.parse_args(argv)
     if hasattr(args, "func"):
