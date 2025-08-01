@@ -1,25 +1,26 @@
+<?xml version='1.0' encoding='utf-8'?>
 <library>
     <books>
         <book id="1">
             <title>Le Mandat</title>
-            <author>Ousmane Semb\u00e8ne</author>
+            <author>Ousmane Sembene</author>
             <genre>Roman</genre>
             <year>1966</year>
         </book>
         <book id="2">
             <title>Une si longue lettre</title>
-            <author>Mariama B\u00e2</author>
+            <author>Mariama Ba</author>
             <genre>Roman</genre>
             <year>1979</year>
         </book>
         <book id="3">
-            <title>L'Aventure ambigu\u00eb</title>
+            <title>L'Aventure ambigues</title>
             <author>Cheikh Hamidou Kane</author>
             <genre>Roman</genre>
             <year>1961</year>
         </book>
         <book id="4">
-            <title>Les Mis\u00e9rables</title>
+            <title>Les Miserables</title>
             <author>Victor Hugo</author>
             <genre>Roman</genre>
             <year>1862</year>
@@ -30,9 +31,15 @@
             <genre>Aventure</genre>
             <year>1870</year>
         </book>
-    </books>
+        <book id="6">
+            <title>solutions</title>
+            <author>ousmane SONKO</author>
+            <genre>Roman</genre>
+            <year>2020</year>
+        </book>
+    <book id="7"><title>Petrole et gaz</title><author>Ousmane SONKO</author><genre>Roman</genre><year>2020</year></book></books>
     <users>
-    </users>
+    <user id="1"><name>CHEIKH IBRA FAYE</name></user><user id="2"><name>faye</name></user></users>
     <loans>
     </loans>
 </library>

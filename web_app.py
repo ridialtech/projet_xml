@@ -1,4 +1,4 @@
-"""Serveur Web pour consulter et enrichir la bibliothèque."""
+"""Serveur Web pour consulter et enrichir la bibliothèque pour les no-codeurs."""
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import parse_qs, urlparse
