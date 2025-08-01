@@ -15,10 +15,17 @@ python main.py --help
 ## Commandes principales
 - `add-book <titre> <auteur> <genre> <annee>` : ajoute un livre
 - `list-books` : liste tous les livres
+- `update-book <id> [--title T] [--author A] [--genre G] [--year Y]` : modifie un livre
+- `delete-book <id>` : supprime un livre
 - `search-books [--author AUTEUR] [--genre GENRE] [--year ANNEE]` : recherche dans la bibliothèque
 - `add-user <nom>` : ajoute un utilisateur
+- `list-users` : liste les utilisateurs
+- `update-user <id> <nom>` : modifie un utilisateur
+- `delete-user <id>` : supprime un utilisateur
 - `loan-book <id_livre> <id_utilisateur> [date_sortie] [date_retour_prevue]` : enregistre un emprunt
 - `return-book <id_livre> [date_retour]` : marque un livre comme rendu
+- `extend-loan <id_livre> <nouvelle_date>` : prolonge un prêt
+
 - `list-loans` : affiche les emprunts
 
 ## Exemple d'utilisation

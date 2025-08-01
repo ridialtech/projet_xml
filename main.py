@@ -27,7 +27,7 @@ def load_library() -> ET.ElementTree:
 
 def save_library(tree: ET.ElementTree) -> None:
     """Enregistre l'arbre XML dans le fichier de bibliothèque."""
-    
+
     tree.write(LIBRARY_FILE, encoding="utf-8", xml_declaration=True)
 
 
@@ -60,7 +60,6 @@ def list_books(_args) -> None:
 
 def search_books(args) -> None:
     """Recherche des livres selon différents critères."""
-
     tree = load_library()
     for book in tree.getroot().findall("books/book"):
         if args.author and args.author.lower() not in book.findtext("author").lower():
@@ -114,7 +113,6 @@ def loan_book(args) -> None:
 
 def return_book(args) -> None:
     """Note le retour d'un livre emprunté."""
-
     tree = load_library()
     loans = tree.getroot().find("loans")
     loan = loans.find(f"loan[@book_id='{args.book_id}'][@returned='false']")
@@ -136,6 +134,84 @@ def list_loans(_args) -> None:
             f"Book {loan.get('book_id')} to user {loan.get('user_id')} "
             f"from {loan.get('date_out')} to {loan.get('date_due')} - {status}"
         )
+
+
+def list_users(_args) -> None:
+    """Affiche tous les utilisateurs enregistrés."""
+    tree = load_library()
+    for user in tree.getroot().findall("users/user"):
+        print(f"[{user.get('id')}] {user.findtext('name')}")
+
+
+def update_book(args) -> None:
+    """Modifie les informations d'un livre."""
+    tree = load_library()
+    book = tree.getroot().find(f"books/book[@id='{args.book_id}']")
+    if book is None:
+        print("Book not found")
+        return
+    if args.title:
+        book.find("title").text = args.title
+    if args.author:
+        book.find("author").text = args.author
+    if args.genre:
+        book.find("genre").text = args.genre
+    if args.year is not None:
+        book.find("year").text = str(args.year)
+    save_library(tree)
+    print("Book updated")
+
+
+def delete_book(args) -> None:
+    """Supprime un livre de la bibliothèque."""
+    tree = load_library()
+    books = tree.getroot().find("books")
+    book = books.find(f"book[@id='{args.book_id}']")
+    if book is None:
+        print("Book not found")
+        return
+    books.remove(book)
+    save_library(tree)
+    print("Book deleted")
+
+
+def update_user(args) -> None:
+    """Met à jour un utilisateur."""
+    tree = load_library()
+    user = tree.getroot().find(f"users/user[@id='{args.user_id}']")
+    if user is None:
+        print("User not found")
+        return
+    user.find("name").text = args.name
+    save_library(tree)
+    print("User updated")
+
+
+def delete_user(args) -> None:
+    """Supprime un utilisateur."""
+    tree = load_library()
+    users = tree.getroot().find("users")
+    user = users.find(f"user[@id='{args.user_id}']")
+    if user is None:
+        print("User not found")
+        return
+    users.remove(user)
+    save_library(tree)
+    print("User deleted")
+
+
+def extend_loan(args) -> None:
+    """Prolonge la date de retour d'un prêt."""
+    tree = load_library()
+    loans = tree.getroot().find("loans")
+    loan = loans.find(f"loan[@book_id='{args.book_id}'][@returned='false']")
+    if loan is None:
+        print("Loan not found")
+        return
+    loan.set("date_due", args.new_date)
+    save_library(tree)
+    print("Loan extended")
+
 
 
 def serve(_args) -> None:
@@ -163,6 +239,19 @@ def build_parser() -> argparse.ArgumentParser:
     blist = sub.add_parser("list-books", help="List all books")
     blist.set_defaults(func=list_books)
 
+    bupd = sub.add_parser("update-book", help="Update a book")
+    bupd.add_argument("book_id")
+    bupd.add_argument("--title")
+    bupd.add_argument("--author")
+    bupd.add_argument("--genre")
+    bupd.add_argument("--year", type=int)
+    bupd.set_defaults(func=update_book)
+
+    bdel = sub.add_parser("delete-book", help="Delete a book")
+    bdel.add_argument("book_id")
+    bdel.set_defaults(func=delete_book)
+
+
     bsearch = sub.add_parser("search-books", help="Search books")
     bsearch.add_argument("--author")
     bsearch.add_argument("--genre")
@@ -172,6 +261,19 @@ def build_parser() -> argparse.ArgumentParser:
     uadd = sub.add_parser("add-user", help="Add a new user")
     uadd.add_argument("name")
     uadd.set_defaults(func=add_user)
+
+    ulist = sub.add_parser("list-users", help="List users")
+    ulist.set_defaults(func=list_users)
+
+    uupd = sub.add_parser("update-user", help="Update a user")
+    uupd.add_argument("user_id")
+    uupd.add_argument("name")
+    uupd.set_defaults(func=update_user)
+
+    udel = sub.add_parser("delete-user", help="Delete a user")
+    udel.add_argument("user_id")
+    udel.set_defaults(func=delete_user)
+
 
     loan = sub.add_parser("loan-book", help="Loan a book to a user")
     loan.add_argument("book_id")
@@ -193,6 +295,11 @@ def build_parser() -> argparse.ArgumentParser:
     )
     ret.set_defaults(func=return_book)
 
+    ext = sub.add_parser("extend-loan", help="Extend a loan")
+    ext.add_argument("book_id")
+    ext.add_argument("new_date")
+    ext.set_defaults(func=extend_loan)
+
     llist = sub.add_parser("list-loans", help="List loans")
     llist.set_defaults(func=list_loans)
 
@@ -205,7 +312,6 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv=None) -> None:
     """Point d'entrée du programme."""
-
     parser = build_parser()
     args = parser.parse_args(argv)
     if hasattr(args, "func"):
