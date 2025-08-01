@@ -51,6 +51,7 @@ def add_book(args) -> None:
 
 def list_books(_args) -> None:
     """Affiche la liste de tous les livres."""
+
     tree = load_library()
     for book in tree.getroot().findall("books/book"):
         print(f"[{book.get('id')}] {book.findtext('title')} by {book.findtext('author')}")
@@ -71,6 +72,7 @@ def search_books(args) -> None:
 
 def add_user(args) -> None:
     """Ajoute un utilisateur à la bibliothèque."""
+
     tree = load_library()
     users = tree.getroot().find("users")
     ids = [int(u.get("id")) for u in users.findall("user")]
@@ -83,6 +85,7 @@ def add_user(args) -> None:
 
 def loan_book(args) -> None:
     """Enregistre le prêt d'un livre à un utilisateur."""
+
     tree = load_library()
     root = tree.getroot()
     # verify book and user exist
@@ -209,6 +212,7 @@ def extend_loan(args) -> None:
     print("Loan extended")
 
 
+
 def serve(_args) -> None:
     """Lance le serveur web et ouvre la page dans un navigateur."""
     import webbrowser
@@ -221,6 +225,7 @@ def serve(_args) -> None:
 def build_parser() -> argparse.ArgumentParser:
     """Construit l'analyseur de ligne de commande."""
     parser = argparse.ArgumentParser(description="Gestionnaire de bibliothèque XML")
+
     sub = parser.add_subparsers(dest="command")
 
     badd = sub.add_parser("add-book", help="Add a new book")
@@ -245,6 +250,7 @@ def build_parser() -> argparse.ArgumentParser:
     bdel.add_argument("book_id")
     bdel.set_defaults(func=delete_book)
 
+
     bsearch = sub.add_parser("search-books", help="Search books")
     bsearch.add_argument("--author")
     bsearch.add_argument("--genre")
@@ -266,6 +272,7 @@ def build_parser() -> argparse.ArgumentParser:
     udel = sub.add_parser("delete-user", help="Delete a user")
     udel.add_argument("user_id")
     udel.set_defaults(func=delete_user)
+
 
     loan = sub.add_parser("loan-book", help="Loan a book to a user")
     loan.add_argument("book_id")
@@ -297,6 +304,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     srv = sub.add_parser("serve", help="Lance l'interface web")
     srv.set_defaults(func=serve)
+
 
     return parser
 

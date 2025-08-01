@@ -270,6 +270,7 @@ def search_books_html(params) -> str:
     return table
 
 
+
 class LibraryHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         parsed = urlparse(self.path)
@@ -466,6 +467,7 @@ class LibraryHandler(BaseHTTPRequestHandler):
             self.send_header("Content-Type", "text/html; charset=utf-8")
             self.end_headers()
             self.wfile.write(html_page.encode("utf-8"))
+
         else:
             self.send_error(404)
 
