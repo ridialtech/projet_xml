@@ -1,0 +1,14 @@
+projet no 2 : Mise en Place d'un Système de Gestion de Bibliothèque avec XML et XQuery
+
+Objectif :
+
+Ce projet a pour but de développer un système de gestion d'une bibliothèque, où les livres, les utilisateurs, et les prêts sont stockés sous forme de fichiers XML. Vous devrez concevoir des requêtes XQuery pour effectuer des recherches complexes dans les fichiers XML.
+Exigences :
+❖ Créer un fichier XML structuré avec des informations sur les livres, les auteurs, les utilisateurs et les prêts.
+❖ Développer des fonctionnalités pour ajouter, supprimer et mettre à jour des livres et des utilisateurs.
+❖ Implémenter des requêtes XQuery pour effectuer des recherches avancées : recherche par auteur, par genre, par date de prêt, etc.
+❖ Créer un système de gestion des prêts, permettant de suivre quels livres sont empruntés par quels utilisateurs.
+Livrables :
+• Fichier XML représentant la bibliothèque.
+• Code source pour l’implémentation du système et des requêtes XQuery.
+• Documentation fonctionnelle et technique.
