@@ -27,7 +27,6 @@ def load_library() -> ET.ElementTree:
 
 def save_library(tree: ET.ElementTree) -> None:
     """Enregistre l'arbre XML dans le fichier de bibliothèque."""
-
     tree.write(LIBRARY_FILE, encoding="utf-8", xml_declaration=True)
 
 

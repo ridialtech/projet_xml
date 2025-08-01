@@ -72,6 +72,205 @@ def add_book_params(params):
     return True
 
 
+def list_users_html() -> str:
+    tree = load_library()
+    rows = []
+    for user in tree.getroot().findall("users/user"):
+        row = (
+            f"<tr><td>{html.escape(user.get('id'))}</td>"
+            f"<td>{html.escape(user.findtext('name'))}</td></tr>"
+        )
+        rows.append(row)
+    table = "<table><tr><th>ID</th><th>Nom</th></tr>" + "".join(rows) + "</table>"
+    return table
+
+
+def add_user_params(params):
+    if "name" not in params:
+        return False
+    tree = load_library()
+    users = tree.getroot().find("users")
+    ids = [int(u.get("id")) for u in users.findall("user")]
+    next_id = max(ids, default=0) + 1
+    user = ET.SubElement(users, "user", id=str(next_id))
+    ET.SubElement(user, "name").text = params["name"][0]
+    save_library(tree)
+    return True
+
+
+def update_book_params(params):
+    if "id" not in params:
+        return False
+    tree = load_library()
+    book = tree.getroot().find(f"books/book[@id='{params['id'][0]}']")
+    if book is None:
+        return False
+    if "title" in params:
+        book.find("title").text = params["title"][0]
+    if "author" in params:
+        book.find("author").text = params["author"][0]
+    if "genre" in params:
+        book.find("genre").text = params["genre"][0]
+    if "year" in params:
+        book.find("year").text = params["year"][0]
+    save_library(tree)
+    return True
+
+
+def delete_book_params(params):
+    if "id" not in params:
+        return False
+    tree = load_library()
+    books = tree.getroot().find("books")
+    book = books.find(f"book[@id='{params['id'][0]}']")
+    if book is None:
+        return False
+    books.remove(book)
+    save_library(tree)
+    return True
+
+
+def update_user_params(params):
+    if "id" not in params or "name" not in params:
+        return False
+    tree = load_library()
+    user = tree.getroot().find(f"users/user[@id='{params['id'][0]}']")
+    if user is None:
+        return False
+    user.find("name").text = params["name"][0]
+    save_library(tree)
+    return True
+
+
+def delete_user_params(params):
+    if "id" not in params:
+        return False
+    tree = load_library()
+    users = tree.getroot().find("users")
+    user = users.find(f"user[@id='{params['id'][0]}']")
+    if user is None:
+        return False
+    users.remove(user)
+    save_library(tree)
+    return True
+
+
+def list_loans_html() -> str:
+    tree = load_library()
+    rows = []
+    for loan in tree.getroot().findall("loans/loan"):
+        status = "retourne" if loan.get("returned") == "true" else "en cours"
+        row = (
+            f"<tr><td>{html.escape(loan.get('book_id'))}</td>"
+            f"<td>{html.escape(loan.get('user_id'))}</td>"
+            f"<td>{html.escape(loan.get('date_out'))}</td>"
+            f"<td>{html.escape(loan.get('date_due'))}</td>"
+            f"<td>{status}</td></tr>"
+        )
+        rows.append(row)
+    table = (
+        "<table><tr><th>Livre</th><th>Utilisateur</th><th>Sortie</th>"
+        "<th>Retour prévu</th><th>Statut</th></tr>" + "".join(rows) + "</table>"
+    )
+    return table
+
+
+def loan_book_params(params):
+    required = {"book_id", "user_id"}
+    if not required.issubset(params.keys()):
+        return False
+    tree = load_library()
+    root = tree.getroot()
+    book = root.find(f"books/book[@id='{params['book_id'][0]}']")
+    user = root.find(f"users/user[@id='{params['user_id'][0]}']")
+    if book is None or user is None:
+        return False
+    loans = root.find("loans")
+    existing = loans.find(
+        f"loan[@book_id='{params['book_id'][0]}'][@returned='false']"
+    )
+    if existing is not None:
+        return False
+    import datetime
+
+    date_out = params.get("date_out", [datetime.date.today().isoformat()])[0]
+    date_due = params.get(
+        "date_due",
+        [(datetime.date.today() + datetime.timedelta(days=30)).isoformat()],
+    )[0]
+    loan = ET.SubElement(
+        loans,
+        "loan",
+        book_id=params["book_id"][0],
+        user_id=params["user_id"][0],
+        date_out=date_out,
+        date_due=date_due,
+        returned="false",
+    )
+    save_library(tree)
+    return True
+
+
+def return_book_params(params):
+    if "book_id" not in params:
+        return False
+    tree = load_library()
+    loans = tree.getroot().find("loans")
+    loan = loans.find(
+        f"loan[@book_id='{params['book_id'][0]}'][@returned='false']"
+    )
+    if loan is None:
+        return False
+    import datetime
+
+    loan.set(
+        "date_return",
+        params.get("date_return", [datetime.date.today().isoformat()])[0],
+    )
+    loan.set("returned", "true")
+    save_library(tree)
+    return True
+
+
+def extend_loan_params(params):
+    if "book_id" not in params or "new_date" not in params:
+        return False
+    tree = load_library()
+    loans = tree.getroot().find("loans")
+    loan = loans.find(
+        f"loan[@book_id='{params['book_id'][0]}'][@returned='false']"
+    )
+    if loan is None:
+        return False
+    loan.set("date_due", params["new_date"][0])
+    save_library(tree)
+    return True
+
+
+def search_books_html(params) -> str:
+    tree = load_library()
+    rows = []
+    for book in tree.getroot().findall("books/book"):
+        if "author" in params and params["author"][0].lower() not in book.findtext("author").lower():
+            continue
+        if "genre" in params and params["genre"][0].lower() not in book.findtext("genre").lower():
+            continue
+        if "year" in params and params["year"][0] != book.findtext("year"):
+            continue
+        row = (
+            f"<tr><td>{html.escape(book.get('id'))}</td>"
+            f"<td>{html.escape(book.findtext('title'))}</td>"
+            f"<td>{html.escape(book.findtext('author'))}</td></tr>"
+        )
+        rows.append(row)
+    if rows:
+        table = "<table><tr><th>ID</th><th>Titre</th><th>Auteur</th></tr>" + "".join(rows) + "</table>"
+    else:
+        table = "<p>Aucun résultat.</p>"
+    return table
+
+
+
 class LibraryHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         parsed = urlparse(self.path)
@@ -115,6 +314,160 @@ class LibraryHandler(BaseHTTPRequestHandler):
                 self.send_header("Content-Type", "text/html; charset=utf-8")
                 self.end_headers()
                 self.wfile.write(html_page.encode("utf-8"))
+        elif parsed.path == "/search-books":
+            params = parse_qs(parsed.query)
+            if params:
+                table = search_books_html(params)
+            else:
+                form = (
+                    "<form>"
+                    "<label>Auteur: <input name='author'></label><br>"
+                    "<label>Genre: <input name='genre'></label><br>"
+                    "<label>Année: <input name='year'></label><br>"
+                    "<input type='submit' value='Rechercher'>"
+                    "</form>"
+                )
+                table = form
+            html_page = page("Recherche de livres", table)
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(html_page.encode("utf-8"))
+        elif parsed.path == "/update-book":
+            params = parse_qs(parsed.query)
+            if params:
+                updated = update_book_params(params)
+                message = "Livre modifié." if updated else "Paramètres manquants."
+                body = f"<p>{message}</p>"
+            else:
+                body = (
+                    "<form>"
+                    "<label>ID: <input name='id'></label><br>"
+                    "<label>Titre: <input name='title'></label><br>"
+                    "<label>Auteur: <input name='author'></label><br>"
+                    "<label>Genre: <input name='genre'></label><br>"
+                    "<label>Année: <input name='year'></label><br>"
+                    "<input type='submit' value='Mettre à jour'>"
+                    "</form>"
+                )
+            html_page = page("Modification d'un livre", body)
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(html_page.encode("utf-8"))
+        elif parsed.path == "/delete-book":
+            params = parse_qs(parsed.query)
+            deleted = delete_book_params(params)
+            body = "<p>Livre supprimé.</p>" if deleted else "<p>Suppression impossible.</p>"
+            html_page = page("Suppression d'un livre", body)
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(html_page.encode("utf-8"))
+        elif parsed.path == "/users":
+            table = list_users_html()
+            html_page = page("Liste des utilisateurs", table)
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(html_page.encode("utf-8"))
+        elif parsed.path == "/add-user":
+            params = parse_qs(parsed.query)
+            if params:
+                added = add_user_params(params)
+                message = "Utilisateur ajouté." if added else "Paramètres manquants."
+                body = f"<p>{message}</p>"
+            else:
+                body = (
+                    "<form>"
+                    "<label>Nom: <input name='name'></label><br>"
+                    "<input type='submit' value='Ajouter'>"
+                    "</form>"
+                )
+            html_page = page("Ajout d'un utilisateur", body)
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(html_page.encode("utf-8"))
+        elif parsed.path == "/update-user":
+            params = parse_qs(parsed.query)
+            if params:
+                updated = update_user_params(params)
+                message = "Utilisateur modifié." if updated else "Paramètres manquants."
+                body = f"<p>{message}</p>"
+            else:
+                body = (
+                    "<form>"
+                    "<label>ID: <input name='id'></label><br>"
+                    "<label>Nom: <input name='name'></label><br>"
+                    "<input type='submit' value='Mettre à jour'>"
+                    "</form>"
+                )
+            html_page = page("Modification d'un utilisateur", body)
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(html_page.encode("utf-8"))
+        elif parsed.path == "/delete-user":
+            params = parse_qs(parsed.query)
+            deleted = delete_user_params(params)
+            body = (
+                "<p>Utilisateur supprimé.</p>" if deleted else "<p>Suppression impossible.</p>"
+            )
+            html_page = page("Suppression d'un utilisateur", body)
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(html_page.encode("utf-8"))
+        elif parsed.path == "/loans":
+            table = list_loans_html()
+            html_page = page("Liste des prêts", table)
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(html_page.encode("utf-8"))
+        elif parsed.path == "/loan-book":
+            params = parse_qs(parsed.query)
+            if params:
+                done = loan_book_params(params)
+                message = "Prêt enregistré." if done else "Opération impossible."
+                body = f"<p>{message}</p>"
+            else:
+                body = (
+                    "<form>"
+                    "<label>Livre: <input name='book_id'></label><br>"
+                    "<label>Utilisateur: <input name='user_id'></label><br>"
+                    "<label>Date sortie: <input name='date_out'></label><br>"
+                    "<label>Date retour prévue: <input name='date_due'></label><br>"
+                    "<input type='submit' value='Enregistrer'>"
+                    "</form>"
+                )
+            html_page = page("Enregistrer un prêt", body)
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(html_page.encode("utf-8"))
+        elif parsed.path == "/return-book":
+            params = parse_qs(parsed.query)
+            done = return_book_params(params)
+            body = "<p>Livre rendu.</p>" if done else "<p>Opération impossible.</p>"
+            html_page = page("Retour d'un livre", body)
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(html_page.encode("utf-8"))
+        elif parsed.path == "/extend-loan":
+            params = parse_qs(parsed.query)
+            done = extend_loan_params(params)
+            body = (
+                "<p>Prêt prolongé.</p>" if done else "<p>Opération impossible.</p>"
+            )
+            html_page = page("Prolonger un prêt", body)
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(html_page.encode("utf-8"))
+
         else:
             self.send_error(404)
 

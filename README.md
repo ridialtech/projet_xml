@@ -46,3 +46,13 @@ python main.py serve
 
 Ceci démarre le serveur et ouvre automatiquement la page `http://localhost:8000` dans votre navigateur.
 
+### Points d'entrée disponibles
+
+- `/books` : liste des livres
+- `/add-book` : formulaire d'ajout de livre
+- `/update-book` et `/delete-book` : modification ou suppression d'un livre via les paramètres de l'URL
+- `/search-books` : recherche dans la bibliothèque
+- `/users` et `/add-user` : gestion des utilisateurs
+- `/update-user` et `/delete-user` : modification ou suppression d'un utilisateur
+- `/loans`, `/loan-book`, `/return-book`, `/extend-loan` : gestion des prêts
+
