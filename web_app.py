@@ -1,4 +1,5 @@
-"""Serveur Web pour consulter et enrichir la bibliothèque."""
+"""Serveur Web pour consulter et enrichir la bibliothèque pour les no-codeurs."""
+
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import parse_qs, urlparse
@@ -19,6 +20,7 @@ label {display:block; margin-bottom:0.5em; font-weight:bold;}
 input, select {width:100%; padding:0.5em; border:1px solid #ccc; border-radius:4px; margin-top:0.25em;}
 input[type='submit'] {background:#333; color:white; border:none; margin-top:1em; padding:0.7em 1.5em; border-radius:4px; cursor:pointer;}
 input[type='submit']:hover {background:#555;}
+
 """
 
 
@@ -44,6 +46,7 @@ def page(title: str, body: str) -> str:
         <a href='/return-book'>Retour</a>
         <a href='/extend-loan'>Prolonger</a>
         <a href='/search-books'>Recherche</a>
+
     </nav>
 </header>
 <main>
@@ -441,6 +444,7 @@ class LibraryHandler(BaseHTTPRequestHandler):
                     "<form>"
                     "<label>ID: <input name='id'></label>"
                     "<label>Nom: <input name='name'></label>"
+
                     "<input type='submit' value='Mettre à jour'>"
                     "</form>"
                 )
@@ -542,11 +546,13 @@ class LibraryHandler(BaseHTTPRequestHandler):
                     "<input type='submit' value='Prolonger'>"
                     "</form>"
                 )
+
             html_page = page("Prolonger un prêt", body)
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
             self.end_headers()
             self.wfile.write(html_page.encode("utf-8"))
+
         else:
             self.send_error(404)
 
