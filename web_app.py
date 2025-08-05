@@ -1,4 +1,4 @@
-"""Serveur Web pour consulter et enrichir la bibliothèque."""
+"""Serveur Web pour consulter et enrichir la bibliothèque pour les no-codeurs."""
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import parse_qs, urlparse
@@ -39,6 +39,7 @@ def page(title: str, body: str) -> str:
         <a href='/return-book'>Retour</a>
         <a href='/extend-loan'>Prolonger</a>
         <a href='/search-books'>Recherche</a>
+
     </nav>
 </header>
 <main>
@@ -207,6 +208,7 @@ def loan_book_params(params):
     )
     if existing is not None:
         return False, "Livre déjà emprunté."
+
     import datetime
 
     date_out = params.get("date_out", [datetime.date.today().isoformat()])[0]
@@ -219,12 +221,14 @@ def loan_book_params(params):
         "loan",
         book_id=book.get("id"),
         user_id=user.get("id"),
+
         date_out=date_out,
         date_due=date_due,
         returned="false",
     )
     save_library(tree)
     return True, "Prêt enregistré."
+
 
 
 def return_book_params(params):
@@ -461,6 +465,7 @@ class LibraryHandler(BaseHTTPRequestHandler):
                     "<form>"
                     f"<label>Livre: <select name='book_id'>{book_opts}</select></label><br>"
                     f"<label>Utilisateur: <select name='user_id'>{user_opts}</select></label><br>"
+
                     "<label>Date sortie: <input name='date_out'></label><br>"
                     "<label>Date retour prévue: <input name='date_due'></label><br>"
                     "<input type='submit' value='Enregistrer'>"
@@ -491,6 +496,7 @@ class LibraryHandler(BaseHTTPRequestHandler):
             self.send_header("Content-Type", "text/html; charset=utf-8")
             self.end_headers()
             self.wfile.write(html_page.encode("utf-8"))
+
         else:
             self.send_error(404)
 
