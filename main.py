@@ -285,7 +285,7 @@ def build_parser() -> argparse.ArgumentParser:
     udel = sub.add_parser("delete-user", help="Delete a user")
     udel.add_argument("user_id")
     udel.set_defaults(func=delete_user)
-    
+
     loan = sub.add_parser("loan-book", help="Loan a book to a user")
     loan.add_argument("book_id")
     loan.add_argument("user_id")

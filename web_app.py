@@ -15,6 +15,12 @@ main {background:white; padding:1em; border-radius:4px;}
 table {width:100%; border-collapse:collapse; margin-bottom:1em;}
 th, td {border:1px solid #ccc; padding:8px; text-align:left;}
 th {background:#eee;}
+form {background:#fafafa; padding:1em; border:1px solid #ddd; border-radius:6px; max-width:400px; margin:1em auto;}
+label {display:block; margin-bottom:0.5em; font-weight:bold;}
+input, select {width:100%; padding:0.5em; border:1px solid #ccc; border-radius:4px; margin-top:0.25em;}
+input[type='submit'] {background:#333; color:white; border:none; margin-top:1em; padding:0.7em 1.5em; border-radius:4px; cursor:pointer;}
+input[type='submit']:hover {background:#555;}
+
 """
 
 
@@ -238,7 +244,6 @@ def _resolve_book_id(root: ET.Element, identifier: str) -> str | None:
     return book.get("id") if book is not None else None
 
 
-
 def return_book_params(params):
     if "book_id" not in params:
         return False
@@ -339,10 +344,11 @@ class LibraryHandler(BaseHTTPRequestHandler):
             else:
                 form = (
                     "<form>"
-                    "<label>Titre: <input name='title'></label><br>"
-                    "<label>Auteur: <input name='author'></label><br>"
-                    "<label>Genre: <input name='genre'></label><br>"
-                    "<label>Année: <input name='year'></label><br>"
+                    "<label>Titre: <input name='title'></label>"
+                    "<label>Auteur: <input name='author'></label>"
+                    "<label>Genre: <input name='genre'></label>"
+                    "<label>Année: <input name='year'></label>"
+
                     "<input type='submit' value='Ajouter'>"
                     "</form>"
                 )
@@ -358,9 +364,10 @@ class LibraryHandler(BaseHTTPRequestHandler):
             else:
                 form = (
                     "<form>"
-                    "<label>Auteur: <input name='author'></label><br>"
-                    "<label>Genre: <input name='genre'></label><br>"
-                    "<label>Année: <input name='year'></label><br>"
+                    "<label>Auteur: <input name='author'></label>"
+                    "<label>Genre: <input name='genre'></label>"
+                    "<label>Année: <input name='year'></label>"
+
                     "<input type='submit' value='Rechercher'>"
                     "</form>"
                 )
@@ -379,11 +386,12 @@ class LibraryHandler(BaseHTTPRequestHandler):
             else:
                 body = (
                     "<form>"
-                    "<label>ID: <input name='id'></label><br>"
-                    "<label>Titre: <input name='title'></label><br>"
-                    "<label>Auteur: <input name='author'></label><br>"
-                    "<label>Genre: <input name='genre'></label><br>"
-                    "<label>Année: <input name='year'></label><br>"
+                    "<label>ID: <input name='id'></label>"
+                    "<label>Titre: <input name='title'></label>"
+                    "<label>Auteur: <input name='author'></label>"
+                    "<label>Genre: <input name='genre'></label>"
+                    "<label>Année: <input name='year'></label>"
+
                     "<input type='submit' value='Mettre à jour'>"
                     "</form>"
                 )
@@ -417,7 +425,8 @@ class LibraryHandler(BaseHTTPRequestHandler):
             else:
                 body = (
                     "<form>"
-                    "<label>Nom: <input name='name'></label><br>"
+                    "<label>Nom: <input name='name'></label>"
+
                     "<input type='submit' value='Ajouter'>"
                     "</form>"
                 )
@@ -435,8 +444,9 @@ class LibraryHandler(BaseHTTPRequestHandler):
             else:
                 body = (
                     "<form>"
-                    "<label>ID: <input name='id'></label><br>"
-                    "<label>Nom: <input name='name'></label><br>"
+                    "<label>ID: <input name='id'></label>"
+                    "<label>Nom: <input name='name'></label>"
+
                     "<input type='submit' value='Mettre à jour'>"
                     "</form>"
                 )
@@ -481,11 +491,10 @@ class LibraryHandler(BaseHTTPRequestHandler):
                 )
                 body = (
                     "<form>"
-                    f"<label>Livre: <select name='book_id'>{book_opts}</select></label><br>"
-                    f"<label>Utilisateur: <select name='user_id'>{user_opts}</select></label><br>"
-
-                    "<label>Date sortie: <input name='date_out'></label><br>"
-                    "<label>Date retour prévue: <input name='date_due'></label><br>"
+                    f"<label>Livre: <select name='book_id'>{book_opts}</select></label>"
+                    f"<label>Utilisateur: <select name='user_id'>{user_opts}</select></label>"
+                    "<label>Date sortie: <input name='date_out'></label>"
+                    "<label>Date retour prévue: <input name='date_due'></label>"
                     "<input type='submit' value='Enregistrer'>"
                     "</form>"
                 )
@@ -508,12 +517,11 @@ class LibraryHandler(BaseHTTPRequestHandler):
                 )
                 body = (
                     "<form>"
-                    f"<label>Livre: <select name='book_id'>{loan_opts}</select></label><br>"
-                    "<label>Date de retour: <input name='date_return'></label><br>"
+                    f"<label>Livre: <select name='book_id'>{loan_opts}</select></label>"
+                    "<label>Date de retour: <input name='date_return'></label>"
                     "<input type='submit' value='Rendre'>"
                     "</form>"
                 )
-
             html_page = page("Retour d'un livre", body)
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
@@ -535,8 +543,8 @@ class LibraryHandler(BaseHTTPRequestHandler):
                 )
                 body = (
                     "<form>"
-                    f"<label>Livre: <select name='book_id'>{loan_opts}</select></label><br>"
-                    "<label>Nouvelle date: <input name='new_date'></label><br>"
+                    f"<label>Livre: <select name='book_id'>{loan_opts}</select></label>"
+                    "<label>Nouvelle date: <input name='new_date'></label>"
                     "<input type='submit' value='Prolonger'>"
                     "</form>"
                 )
