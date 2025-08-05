@@ -1,4 +1,5 @@
-"""Serveur Web pour consulter et enrichir la bibliothèque."""
+"""Serveur Web pour consulter et enrichir la bibliothèque pour les no-codeurs."""
+
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import parse_qs, urlparse
@@ -39,6 +40,7 @@ def page(title: str, body: str) -> str:
         <a href='/return-book'>Retour</a>
         <a href='/extend-loan'>Prolonger</a>
         <a href='/search-books'>Recherche</a>
+
     </nav>
 </header>
 <main>
@@ -207,6 +209,7 @@ def loan_book_params(params):
     )
     if existing is not None:
         return False, "Livre déjà emprunté."
+
     import datetime
 
     date_out = params.get("date_out", [datetime.date.today().isoformat()])[0]
@@ -235,6 +238,7 @@ def _resolve_book_id(root: ET.Element, identifier: str) -> str | None:
     return book.get("id") if book is not None else None
 
 
+
 def return_book_params(params):
     if "book_id" not in params:
         return False
@@ -246,6 +250,7 @@ def return_book_params(params):
     loans = root.find("loans")
     loan = loans.find(
         f"loan[@book_id='{book_id}'][@returned='false']"
+
     )
     if loan is None:
         return False
@@ -271,6 +276,7 @@ def extend_loan_params(params):
     loans = root.find("loans")
     loan = loans.find(
         f"loan[@book_id='{book_id}'][@returned='false']"
+
     )
     if loan is None:
         return False
@@ -477,6 +483,7 @@ class LibraryHandler(BaseHTTPRequestHandler):
                     "<form>"
                     f"<label>Livre: <select name='book_id'>{book_opts}</select></label><br>"
                     f"<label>Utilisateur: <select name='user_id'>{user_opts}</select></label><br>"
+
                     "<label>Date sortie: <input name='date_out'></label><br>"
                     "<label>Date retour prévue: <input name='date_due'></label><br>"
                     "<input type='submit' value='Enregistrer'>"
@@ -506,6 +513,7 @@ class LibraryHandler(BaseHTTPRequestHandler):
                     "<input type='submit' value='Rendre'>"
                     "</form>"
                 )
+
             html_page = page("Retour d'un livre", body)
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
@@ -532,11 +540,13 @@ class LibraryHandler(BaseHTTPRequestHandler):
                     "<input type='submit' value='Prolonger'>"
                     "</form>"
                 )
+
             html_page = page("Prolonger un prêt", body)
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
             self.end_headers()
             self.wfile.write(html_page.encode("utf-8"))
+
         else:
             self.send_error(404)
 
