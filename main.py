@@ -219,6 +219,7 @@ def extend_loan(args) -> None:
         return
     loans = root.find("loans")
     loan = loans.find(f"loan[@book_id='{book_id}'][@returned='false']")
+
     if loan is None:
         print("Loan not found")
         return
