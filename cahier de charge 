@@ -1,14 +1,31 @@
-projet no 2 : Mise en Place d'un Système de Gestion de Bibliothèque avec XML et XQuery
+Cahier des charges
+Projet n°2 : Mise en place d'un système de gestion de bibliothèque avec XML et XQuery
 
-Objectif :
+Objectif du projet
+------------------
+Développer un outil complet de gestion de bibliothèque permettant de stocker les informations relatives aux ouvrages, aux usagers et aux emprunts dans des fichiers XML. Les requêtes XQuery permettront d'effectuer des recherches et analyses avancées.
 
-Ce projet a pour but de développer un système de gestion d'une bibliothèque, où les livres, les utilisateurs, et les prêts sont stockés sous forme de fichiers XML. Vous devrez concevoir des requêtes XQuery pour effectuer des recherches complexes dans les fichiers XML.
-Exigences :
-❖ Créer un fichier XML structuré avec des informations sur les livres, les auteurs, les utilisateurs et les prêts.
-❖ Développer des fonctionnalités pour ajouter, supprimer et mettre à jour des livres et des utilisateurs.
-❖ Implémenter des requêtes XQuery pour effectuer des recherches avancées : recherche par auteur, par genre, par date de prêt, etc.
-❖ Créer un système de gestion des prêts, permettant de suivre quels livres sont empruntés par quels utilisateurs.
-Livrables :
-• Fichier XML représentant la bibliothèque.
-• Code source pour l’implémentation du système et des requêtes XQuery.
-• Documentation fonctionnelle et technique.
+Périmètre fonctionnel
+---------------------
+- Création et maintien d'un fichier XML structuré pour les livres, les auteurs (Sénégalais et Français), les utilisateurs et les prêts.
+- Ajout, suppression et mise à jour des livres et des fiches utilisateurs.
+- Recherche avancée par auteur, genre, date de publication ou date de prêt.
+- Suivi précis des prêts et retours pour chaque usager.
+
+Exemples de livres référencés
+-----------------------------
+- "Le Mandat" d'Ousmane Sembène
+- "Une si longue lettre" de Mariama Bâ
+- "L'Aventure ambiguë" de Cheikh Hamidou Kane
+- "Les Misérables" de Victor Hugo
+- "Vingt mille lieues sous les mers" de Jules Verne
+
+Budget prévisionnel
+-------------------
+Le budget dédié à la mise en œuvre de ce projet est estimé à 1 000 000 francs CFA, couvrant l'analyse, le développement, la documentation et la formation des utilisateurs.
+
+Livrables attendus
+------------------
+- Fichier XML principal représentant la bibliothèque et ses transactions.
+- Code source complet pour l'application et les requêtes XQuery associées.
+- Documentation utilisateur et documentation technique détaillée.
