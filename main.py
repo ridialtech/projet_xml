@@ -137,10 +137,15 @@ def return_book(args) -> None:
 def list_loans(_args) -> None:
     """Affiche l'ensemble des prêts enregistrés."""
     tree = load_library()
-    for loan in tree.getroot().findall("loans/loan"):
+    root = tree.getroot()
+    for loan in root.findall("loans/loan"):
+        book = root.find(f"books/book[@id='{loan.get('book_id')}']")
+        user = root.find(f"users/user[@id='{loan.get('user_id')}']")
+        book_title = book.findtext("title") if book is not None else loan.get("book_id")
+        user_name = user.findtext("name") if user is not None else loan.get("user_id")
         status = "returned" if loan.get("returned") == "true" else "on loan"
         print(
-            f"Book {loan.get('book_id')} to user {loan.get('user_id')} "
+            f"Book {book_title} to user {user_name} "
             f"from {loan.get('date_out')} to {loan.get('date_due')} - {status}"
         )
 
@@ -219,7 +224,6 @@ def extend_loan(args) -> None:
         return
     loans = root.find("loans")
     loan = loans.find(f"loan[@book_id='{book_id}'][@returned='false']")
-
     if loan is None:
         print("Loan not found")
         return

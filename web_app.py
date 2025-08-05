@@ -172,12 +172,17 @@ def delete_user_params(params):
 
 def list_loans_html() -> str:
     tree = load_library()
+    root = tree.getroot()
     rows = []
-    for loan in tree.getroot().findall("loans/loan"):
+    for loan in root.findall("loans/loan"):
+        book = root.find(f"books/book[@id='{loan.get('book_id')}']")
+        user = root.find(f"users/user[@id='{loan.get('user_id')}']")
+        book_title = book.findtext("title") if book is not None else loan.get("book_id")
+        user_name = user.findtext("name") if user is not None else loan.get("user_id")
         status = "retourne" if loan.get("returned") == "true" else "en cours"
         row = (
-            f"<tr><td>{html.escape(loan.get('book_id'))}</td>"
-            f"<td>{html.escape(loan.get('user_id'))}</td>"
+            f"<tr><td>{html.escape(book_title)}</td>"
+            f"<td>{html.escape(user_name)}</td>"
             f"<td>{html.escape(loan.get('date_out'))}</td>"
             f"<td>{html.escape(loan.get('date_due'))}</td>"
             f"<td>{status}</td></tr>"
@@ -215,7 +220,6 @@ def loan_book_params(params):
     )
     if existing is not None:
         return False, "Livre déjà emprunté."
-
     import datetime
 
     date_out = params.get("date_out", [datetime.date.today().isoformat()])[0]
@@ -255,7 +259,6 @@ def return_book_params(params):
     loans = root.find("loans")
     loan = loans.find(
         f"loan[@book_id='{book_id}'][@returned='false']"
-
     )
     if loan is None:
         return False
@@ -281,7 +284,6 @@ def extend_loan_params(params):
     loans = root.find("loans")
     loan = loans.find(
         f"loan[@book_id='{book_id}'][@returned='false']"
-
     )
     if loan is None:
         return False
@@ -348,7 +350,6 @@ class LibraryHandler(BaseHTTPRequestHandler):
                     "<label>Auteur: <input name='author'></label>"
                     "<label>Genre: <input name='genre'></label>"
                     "<label>Année: <input name='year'></label>"
-
                     "<input type='submit' value='Ajouter'>"
                     "</form>"
                 )
@@ -367,7 +368,6 @@ class LibraryHandler(BaseHTTPRequestHandler):
                     "<label>Auteur: <input name='author'></label>"
                     "<label>Genre: <input name='genre'></label>"
                     "<label>Année: <input name='year'></label>"
-
                     "<input type='submit' value='Rechercher'>"
                     "</form>"
                 )
@@ -391,7 +391,6 @@ class LibraryHandler(BaseHTTPRequestHandler):
                     "<label>Auteur: <input name='author'></label>"
                     "<label>Genre: <input name='genre'></label>"
                     "<label>Année: <input name='year'></label>"
-
                     "<input type='submit' value='Mettre à jour'>"
                     "</form>"
                 )
@@ -426,7 +425,6 @@ class LibraryHandler(BaseHTTPRequestHandler):
                 body = (
                     "<form>"
                     "<label>Nom: <input name='name'></label>"
-
                     "<input type='submit' value='Ajouter'>"
                     "</form>"
                 )
