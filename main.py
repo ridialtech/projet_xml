@@ -212,7 +212,6 @@ def extend_loan(args) -> None:
     print("Loan extended")
 
 
-
 def serve(_args) -> None:
     """Lance le serveur web et ouvre la page dans un navigateur."""
     import webbrowser
@@ -303,7 +302,6 @@ def build_parser() -> argparse.ArgumentParser:
 
     srv = sub.add_parser("serve", help="Lance l'interface web")
     srv.set_defaults(func=serve)
-
 
     return parser
 

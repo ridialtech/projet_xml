@@ -186,19 +186,29 @@ def list_loans_html() -> str:
 def loan_book_params(params):
     required = {"book_id", "user_id"}
     if not required.issubset(params.keys()):
-        return False
+        return False, "Paramètres manquants."
     tree = load_library()
     root = tree.getroot()
-    book = root.find(f"books/book[@id='{params['book_id'][0]}']")
-    user = root.find(f"users/user[@id='{params['user_id'][0]}']")
-    if book is None or user is None:
-        return False
+    book_id = params["book_id"][0]
+    user_id = params["user_id"][0]
+
+    book = root.find(f"books/book[@id='{book_id}']")
+    if book is None:
+        book = root.find(f"books/book[title='{book_id}']")
+    user = root.find(f"users/user[@id='{user_id}']")
+    if user is None:
+        user = root.find(f"users/user[name='{user_id}']")
+    if book is None:
+        return False, "Livre introuvable."
+    if user is None:
+        return False, "Utilisateur introuvable."
     loans = root.find("loans")
     existing = loans.find(
-        f"loan[@book_id='{params['book_id'][0]}'][@returned='false']"
+        f"loan[@book_id='{book.get('id')}'][@returned='false']"
     )
     if existing is not None:
-        return False
+        return False, "Livre déjà emprunté."
+
     import datetime
 
     date_out = params.get("date_out", [datetime.date.today().isoformat()])[0]
@@ -206,17 +216,19 @@ def loan_book_params(params):
         "date_due",
         [(datetime.date.today() + datetime.timedelta(days=30)).isoformat()],
     )[0]
-    loan = ET.SubElement(
+    ET.SubElement(
         loans,
         "loan",
-        book_id=params["book_id"][0],
-        user_id=params["user_id"][0],
+        book_id=book.get("id"),
+        user_id=user.get("id"),
+
         date_out=date_out,
         date_due=date_due,
         returned="false",
     )
     save_library(tree)
-    return True
+    return True, "Prêt enregistré."
+
 
 
 def return_book_params(params):
@@ -436,14 +448,24 @@ class LibraryHandler(BaseHTTPRequestHandler):
         elif parsed.path == "/loan-book":
             params = parse_qs(parsed.query)
             if params:
-                done = loan_book_params(params)
-                message = "Prêt enregistré." if done else "Opération impossible."
-                body = f"<p>{message}</p>"
+                done, message = loan_book_params(params)
+                body = f"<p>{html.escape(message)}</p>"
             else:
+                tree = load_library()
+                root = tree.getroot()
+                book_opts = "".join(
+                    f"<option value='{b.get('id')}'>{html.escape(b.findtext('title'))}</option>"
+                    for b in root.findall("books/book")
+                )
+                user_opts = "".join(
+                    f"<option value='{u.get('id')}'>{html.escape(u.findtext('name'))}</option>"
+                    for u in root.findall("users/user")
+                )
                 body = (
                     "<form>"
-                    "<label>Livre: <input name='book_id'></label><br>"
-                    "<label>Utilisateur: <input name='user_id'></label><br>"
+                    f"<label>Livre: <select name='book_id'>{book_opts}</select></label><br>"
+                    f"<label>Utilisateur: <select name='user_id'>{user_opts}</select></label><br>"
+
                     "<label>Date sortie: <input name='date_out'></label><br>"
                     "<label>Date retour prévue: <input name='date_due'></label><br>"
                     "<input type='submit' value='Enregistrer'>"
