@@ -51,7 +51,6 @@ def add_book(args) -> None:
 
 def list_books(_args) -> None:
     """Affiche la liste de tous les livres."""
-
     tree = load_library()
     for book in tree.getroot().findall("books/book"):
         print(f"[{book.get('id')}] {book.findtext('title')} by {book.findtext('author')}")
@@ -72,7 +71,6 @@ def search_books(args) -> None:
 
 def add_user(args) -> None:
     """Ajoute un utilisateur à la bibliothèque."""
-
     tree = load_library()
     users = tree.getroot().find("users")
     ids = [int(u.get("id")) for u in users.findall("user")]
@@ -85,7 +83,6 @@ def add_user(args) -> None:
 
 def loan_book(args) -> None:
     """Enregistre le prêt d'un livre à un utilisateur."""
-
     tree = load_library()
     root = tree.getroot()
     # verify book and user exist
@@ -110,11 +107,24 @@ def loan_book(args) -> None:
     print("Loan recorded")
 
 
+def _find_book_id(root: ET.Element, identifier: str) -> str | None:
+    """Retourne l'identifiant du livre correspondant à l'id ou au titre."""
+    book = root.find(f"books/book[@id='{identifier}']")
+    if book is None:
+        book = root.find(f"books/book[title='{identifier}']")
+    return book.get("id") if book is not None else None
+
+
 def return_book(args) -> None:
     """Note le retour d'un livre emprunté."""
     tree = load_library()
-    loans = tree.getroot().find("loans")
-    loan = loans.find(f"loan[@book_id='{args.book_id}'][@returned='false']")
+    root = tree.getroot()
+    book_id = _find_book_id(root, args.book_id)
+    if book_id is None:
+        print("Book not found")
+        return
+    loans = root.find("loans")
+    loan = loans.find(f"loan[@book_id='{book_id}'][@returned='false']")
     if loan is None:
         print("Loan not found")
         return
@@ -202,8 +212,14 @@ def delete_user(args) -> None:
 def extend_loan(args) -> None:
     """Prolonge la date de retour d'un prêt."""
     tree = load_library()
-    loans = tree.getroot().find("loans")
-    loan = loans.find(f"loan[@book_id='{args.book_id}'][@returned='false']")
+    root = tree.getroot()
+    book_id = _find_book_id(root, args.book_id)
+    if book_id is None:
+        print("Book not found")
+        return
+    loans = root.find("loans")
+    loan = loans.find(f"loan[@book_id='{book_id}'][@returned='false']")
+
     if loan is None:
         print("Loan not found")
         return
@@ -224,7 +240,6 @@ def serve(_args) -> None:
 def build_parser() -> argparse.ArgumentParser:
     """Construit l'analyseur de ligne de commande."""
     parser = argparse.ArgumentParser(description="Gestionnaire de bibliothèque XML")
-
     sub = parser.add_subparsers(dest="command")
 
     badd = sub.add_parser("add-book", help="Add a new book")
@@ -270,8 +285,7 @@ def build_parser() -> argparse.ArgumentParser:
     udel = sub.add_parser("delete-user", help="Delete a user")
     udel.add_argument("user_id")
     udel.set_defaults(func=delete_user)
-
-
+    
     loan = sub.add_parser("loan-book", help="Loan a book to a user")
     loan.add_argument("book_id")
     loan.add_argument("user_id")

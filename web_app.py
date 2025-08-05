@@ -1,5 +1,6 @@
 """Serveur Web pour consulter et enrichir la bibliothèque pour les no-codeurs."""
 
+
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import parse_qs, urlparse
 import html
@@ -221,7 +222,6 @@ def loan_book_params(params):
         "loan",
         book_id=book.get("id"),
         user_id=user.get("id"),
-
         date_out=date_out,
         date_due=date_due,
         returned="false",
@@ -230,14 +230,27 @@ def loan_book_params(params):
     return True, "Prêt enregistré."
 
 
+def _resolve_book_id(root: ET.Element, identifier: str) -> str | None:
+    """Retourne l'identifiant du livre selon son id ou son titre."""
+    book = root.find(f"books/book[@id='{identifier}']")
+    if book is None:
+        book = root.find(f"books/book[title='{identifier}']")
+    return book.get("id") if book is not None else None
+
+
 
 def return_book_params(params):
     if "book_id" not in params:
         return False
     tree = load_library()
-    loans = tree.getroot().find("loans")
+    root = tree.getroot()
+    book_id = _resolve_book_id(root, params["book_id"][0])
+    if book_id is None:
+        return False
+    loans = root.find("loans")
     loan = loans.find(
-        f"loan[@book_id='{params['book_id'][0]}'][@returned='false']"
+        f"loan[@book_id='{book_id}'][@returned='false']"
+
     )
     if loan is None:
         return False
@@ -256,9 +269,14 @@ def extend_loan_params(params):
     if "book_id" not in params or "new_date" not in params:
         return False
     tree = load_library()
-    loans = tree.getroot().find("loans")
+    root = tree.getroot()
+    book_id = _resolve_book_id(root, params["book_id"][0])
+    if book_id is None:
+        return False
+    loans = root.find("loans")
     loan = loans.find(
-        f"loan[@book_id='{params['book_id'][0]}'][@returned='false']"
+        f"loan[@book_id='{book_id}'][@returned='false']"
+
     )
     if loan is None:
         return False
@@ -478,8 +496,24 @@ class LibraryHandler(BaseHTTPRequestHandler):
             self.wfile.write(html_page.encode("utf-8"))
         elif parsed.path == "/return-book":
             params = parse_qs(parsed.query)
-            done = return_book_params(params)
-            body = "<p>Livre rendu.</p>" if done else "<p>Opération impossible.</p>"
+            if params:
+                done = return_book_params(params)
+                body = "<p>Livre rendu.</p>" if done else "<p>Opération impossible.</p>"
+            else:
+                tree = load_library()
+                root = tree.getroot()
+                loan_opts = "".join(
+                    f"<option value='{l.get('book_id')}'>{html.escape(root.find("books/book[@id='%s']" % l.get('book_id')).findtext('title'))}</option>"
+                    for l in root.findall("loans/loan[@returned='false']")
+                )
+                body = (
+                    "<form>"
+                    f"<label>Livre: <select name='book_id'>{loan_opts}</select></label><br>"
+                    "<label>Date de retour: <input name='date_return'></label><br>"
+                    "<input type='submit' value='Rendre'>"
+                    "</form>"
+                )
+
             html_page = page("Retour d'un livre", body)
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
@@ -487,10 +521,26 @@ class LibraryHandler(BaseHTTPRequestHandler):
             self.wfile.write(html_page.encode("utf-8"))
         elif parsed.path == "/extend-loan":
             params = parse_qs(parsed.query)
-            done = extend_loan_params(params)
-            body = (
-                "<p>Prêt prolongé.</p>" if done else "<p>Opération impossible.</p>"
-            )
+            if params:
+                done = extend_loan_params(params)
+                body = (
+                    "<p>Prêt prolongé.</p>" if done else "<p>Opération impossible.</p>"
+                )
+            else:
+                tree = load_library()
+                root = tree.getroot()
+                loan_opts = "".join(
+                    f"<option value='{l.get('book_id')}'>{html.escape(root.find("books/book[@id='%s']" % l.get('book_id')).findtext('title'))}</option>"
+                    for l in root.findall("loans/loan[@returned='false']")
+                )
+                body = (
+                    "<form>"
+                    f"<label>Livre: <select name='book_id'>{loan_opts}</select></label><br>"
+                    "<label>Nouvelle date: <input name='new_date'></label><br>"
+                    "<input type='submit' value='Prolonger'>"
+                    "</form>"
+                )
+
             html_page = page("Prolonger un prêt", body)
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
